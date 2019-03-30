@@ -5,6 +5,9 @@ import semver from 'semver';
 const client = new RegistryClient();
 const getPackage = util.promisify(client.get).bind(client);
 
+/**
+ * 根据提供的包名和可选的版本号，返回该包的依赖树
+ */
 export default async function listPackageDependencies(packageName, version) {
   const result = await resolvePkgDeps([{ name: packageName, version }]);
 
@@ -13,6 +16,9 @@ export default async function listPackageDependencies(packageName, version) {
   return result;
 }
 
+/**
+ * 获取一系列包的依赖信息，并建立一个依赖树
+ */
 async function resolvePkgDeps(packages) {
   const resolvePkgPromises = packages.map(async p => {
     const item = {
@@ -43,6 +49,9 @@ async function resolvePkgDeps(packages) {
   return Promise.all(resolvePkgPromises);
 }
 
+/**
+ * 获得指定名称、版本下包的 package.json 相关信息
+ */
 async function resolveManifest({ name, version }) {
   let url = `http://registry.npmjs.org/${encodeURIComponent(name)}`;
   let manifest;
