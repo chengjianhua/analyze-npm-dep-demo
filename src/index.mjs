@@ -3,7 +3,7 @@ import printDeps from './print-deps';
 
 async function main() {
   try {
-    const tree = await listPackageDependencies('react');
+    const tree = await listPackageDependencies('react-router-dom');
     // const { default: tree } = await import('./data.json');
 
     console.log(printDeps(tree));

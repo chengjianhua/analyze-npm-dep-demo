@@ -44,7 +44,7 @@ async function resolvePkgDeps(packages) {
 }
 
 async function resolveManifest({ name, version }) {
-  let url = `http://registry.npmjs.org/${name}`;
+  let url = `http://registry.npmjs.org/${encodeURIComponent(name)}`;
   let manifest;
 
   if (!version) {
@@ -53,6 +53,10 @@ async function resolveManifest({ name, version }) {
     manifest = data.versions[version];
   } else {
     version = semver.coerce(version);
+    // https://github.com/npm/registry-issue-archive/issues/34#issuecomment-228349870
+    if (name.startsWith('@') && /^\d/.test(version)) {
+      version = '^' + version;
+    }
     url = `${url}/${version}`;
     const data = await getPackage(url, {});
     manifest = data;
