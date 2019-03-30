@@ -10,28 +10,35 @@ const client = new RegistryClient();
 const getPackage = util.promisify(client.get).bind(client);
 
 export default async function listPackageDependencies(packageName, version) {
-  return resolvePkgDeps([{ name: packageName, version }]);
+  const result = await resolvePkgDeps([{ name: packageName, version }]);
+
+  console.log(JSON.stringify(result, null, 2));
 }
 
 async function resolvePkgDeps(packages) {
   const resolvePkgPromises = packages.map(async p => {
-    console.log(p);
+    const item = {
+      ...p,
+      children: null,
+    };
+
+    // console.log(p);
     const manifest = await resolveManifest(p);
-    if (!manifest.dependencies) {
-      return;
+    const dependencyEntries = manifest.dependencies
+      ? Object.entries(manifest.dependencies)
+      : [];
+    if (dependencyEntries.length === 0) {
+      return item;
     }
 
-    const depPackages = Object.entries(manifest.dependencies).map(
-      ([name, version]) => {
-        return { name, version };
-      },
-    );
+    const depPackages = dependencyEntries.map(([name, version]) => ({
+      name,
+      version,
+    }));
 
-    if (!depPackages.length) {
-      return;
-    }
+    item.children = await resolvePkgDeps(tree, depPackages);
 
-    return resolvePkgDeps(depPackages);
+    return item;
   });
 
   return Promise.all(resolvePkgPromises);
@@ -49,9 +56,7 @@ async function resolveManifest({ name, version }) {
   } else {
     version = semver.coerce(version);
     url = `${url}/${version}`;
-
     const data = await getPackage(url, {});
-
     manifest = data;
   }
 
