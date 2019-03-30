@@ -13,6 +13,8 @@ export default async function listPackageDependencies(packageName, version) {
   const result = await resolvePkgDeps([{ name: packageName, version }]);
 
   console.log(JSON.stringify(result, null, 2));
+
+  return result;
 }
 
 async function resolvePkgDeps(packages) {
@@ -24,6 +26,9 @@ async function resolvePkgDeps(packages) {
 
     // console.log(p);
     const manifest = await resolveManifest(p);
+    if (!item.version) {
+      item.version = manifest.version;
+    }
     const dependencyEntries = manifest.dependencies
       ? Object.entries(manifest.dependencies)
       : [];
@@ -36,7 +41,7 @@ async function resolvePkgDeps(packages) {
       version,
     }));
 
-    item.children = await resolvePkgDeps(tree, depPackages);
+    item.children = await resolvePkgDeps(depPackages);
 
     return item;
   });
