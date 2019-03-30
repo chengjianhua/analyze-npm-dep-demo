@@ -3,16 +3,12 @@ import util from 'util';
 import semver from 'semver';
 
 const client = new RegistryClient();
-
-// client.get(url, {}, (err, data, raw, res) => {
-//   console.log(data);
-// });
 const getPackage = util.promisify(client.get).bind(client);
 
 export default async function listPackageDependencies(packageName, version) {
   const result = await resolvePkgDeps([{ name: packageName, version }]);
 
-  console.log(JSON.stringify(result, null, 2));
+  console.log(util.inspect(result, { colors: true, depth: Infinity }));
 
   return result;
 }
@@ -23,12 +19,11 @@ async function resolvePkgDeps(packages) {
       ...p,
       children: null,
     };
-
-    // console.log(p);
     const manifest = await resolveManifest(p);
     if (!item.version) {
       item.version = manifest.version;
     }
+
     const dependencyEntries = manifest.dependencies
       ? Object.entries(manifest.dependencies)
       : [];
@@ -40,7 +35,6 @@ async function resolvePkgDeps(packages) {
       name,
       version,
     }));
-
     item.children = await resolvePkgDeps(depPackages);
 
     return item;
@@ -55,7 +49,6 @@ async function resolveManifest({ name, version }) {
 
   if (!version) {
     const data = await getPackage(url, {});
-
     version = data['dist-tags'].latest;
     manifest = data.versions[version];
   } else {
