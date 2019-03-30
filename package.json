@@ -1,0 +1,14 @@
+{
+  "name": "analyze-npm-dep-demo",
+  "version": "1.0.0",
+  "main": "index.js",
+  "author": "Jianhua Cheng <w.chengjianhua@gmail.com>",
+  "license": "MIT",
+  "dependencies": {
+    "npm-registry-client": "^8.6.0",
+    "semver": "^6.0.0"
+  },
+  "scripts": {
+    "start": "node --experimental-modules src/index.mjs"
+  }
+}
