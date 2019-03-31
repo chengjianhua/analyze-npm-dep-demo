@@ -26,6 +26,8 @@ async function resolvePkgDeps(packages) {
       children: null,
     };
     const manifest = await resolveManifest(p);
+    // 如果包的版本没有指定的话，则指定版本为从 manifest 中获取的最新版本号
+    // （例如一开始默认解析的包并没有指定包名）
     if (!item.version) {
       item.version = manifest.version;
     }
@@ -53,6 +55,8 @@ async function resolvePkgDeps(packages) {
  * 获得指定名称、版本下包的 package.json 相关信息
  */
 async function resolveManifest({ name, version }) {
+  // encodeURIComponent 用于处理 scoped package 的包名，例如 @babel/runtime 没经过处理
+  // 会使得解析到错误的路径
   let url = `http://registry.npmjs.org/${encodeURIComponent(name)}`;
   let manifest;
 
@@ -62,7 +66,7 @@ async function resolveManifest({ name, version }) {
     manifest = data.versions[version];
   } else {
     version = semver.coerce(version);
-    // https://github.com/npm/registry-issue-archive/issues/34#issuecomment-228349870
+    // See https://github.com/npm/registry-issue-archive/issues/34#issuecomment-228349870
     if (name.startsWith('@') && /^\d/.test(version)) {
       version = '^' + version;
     }
