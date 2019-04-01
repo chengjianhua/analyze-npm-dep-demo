@@ -1,10 +1,11 @@
+import util from 'util'
+
 import listPackageDependencies from './list-package-deps';
-import printDeps from './print-deps';
 
 async function main() {
   try {
     const tree = await listPackageDependencies('react-router-dom');
-    console.log(JSON.stringify(tree, null, 2));
+    console.log(util.inspect(tree, { colors: true, depth: Infinity }));
   } catch (error) {
     console.error(error);
     throw error;

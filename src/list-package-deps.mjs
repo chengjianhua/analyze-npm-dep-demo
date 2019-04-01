@@ -11,8 +11,6 @@ const getPackage = util.promisify(client.get).bind(client);
 export default async function listPackageDependencies(packageName, version) {
   const result = await resolvePkgDeps([{ name: packageName, version }]);
 
-  console.log(util.inspect(result, { colors: true, depth: Infinity }));
-
   return result;
 }
 
